@@ -1,0 +1,145 @@
+doctype html
+html
+  head
+    title Intel(R) RealSense(TM) SDK Web Sample
+    |     
+    script(type='text/javascript', src='../js/jquery-1.11.0.min.js')
+    |     
+    script(type='text/javascript', src='../js/promise-1.0.0.min.js')
+    |     
+    script(type='text/javascript', src='../js/realsense-3.0.js')
+    |     
+    script(type='text/javascript', src='../js/realsenseinfo-3.0.js')
+    |     
+    script(type='text/javascript').
+      $(document).ready(function () {
+      var session;
+      var speech_rec;
+      var mode;
+      // check platform compatibility
+      RealSenseInfo(['nuance'], function (info) {
+      if (info.IsReady == true) {
+      $('#info').append('<b>Platform supports Intel(R) RealSense(TM) SDK feature</b>');
+      status('OK');
+      document.getElementById("Start").disabled = false;
+      } else {
+      $('#status').text('Platform not supported: ' + info.responseText);
+      if (info.IsPlatformSupported != true) {
+      $('#info').append('<b>Intel® RealSense™ 3D camera not found</b>');
+      } else if (info.IsBrowserSupported != true) {
+      $('#info').append('<b>Please update your browser to latest version</b>');
+      } else {
+      $('#info').append('<b>Please download and install the following update(s) before running sample: </b>');
+      for (i = 0; i < info.Updates.length; i++) {
+      $('#info').append('<a href="' + info.Updates[i].url + '">' + info.Updates[i].href + '</a><br>');
+      }
+      }
+      }
+      })
+      $('#mode').change(function () {
+      mode = $(this).val();
+      if (mode == 0) {
+      document.getElementById("commands").style.display = "none";
+      } else {
+      document.getElementById("commands").style.display = "block";
+      }
+      });
+      $('#Start').click(function () {
+      document.getElementById("Start").disabled = true;
+      PXCMSession_CreateInstance().then(function (result) {
+      session = result;
+      status('Initilizing');
+      return session.CreateImpl(undefined, undefined, pxcmConst.PXCMSpeechRecognition.CUID);
+      }).then(function (result) {
+      speech_rec = result;
+      var selects = document.getElementById("mode");
+      mode = Number(selects.options[selects.selectedIndex].value);
+      if (mode != 0) {
+      var commands = $('#commands').val().split('\\n');
+      return speech_rec.BuildGrammarFromStringList(mode, commands, null);
+      } else {
+      return session.QueryVersion(); // for chain of operations
+      }
+      }).then(function (result) {
+      if (mode != 0) {
+      return speech_rec.SetGrammar(mode);
+      } else {
+      return session.QueryVersion(); // for chain of operations
+      }
+      }).then(function (result) {
+      status('Grammar created');
+      return speech_rec.StartRec(OnRecognition, OnAlert);
+      }).then(function (result) {
+      status('Started');
+      document.getElementById("Stop").disabled = false;
+      }).catch(function (error) {
+      status('StartRec failed: ' + JSON.stringify(error));
+      document.getElementById("Start").disabled = false;
+      });
+      });
+      $('#Stop').click(function () {
+      document.getElementById("Stop").disabled = true;
+      speech_rec.StopRec().then(function (result) {
+      status('Stopped');
+      $('#alerts').text('');
+      $('#recognition').text('');
+      document.getElementById("Start").disabled = false;
+      });
+      });
+      function OnRecognition(result) {
+      var res = result.data.scores[0];
+      if (res.confidence !== 'undefined' && res.confidence != 0) res.sentence += ' (' + res.confidence + '%)';
+      $('#recognition').append(res.sentence + '<br>');
+      var obj = document.getElementById("recognition");
+      obj.scrollTop = obj.scrollHeight;
+      }
+      function OnAlert(result) {
+      $('#alerts').append(result.data.name + '<br>');
+      var obj = document.getElementById("alerts");
+      obj.scrollTop = obj.scrollHeight;
+      }
+      function status(msg) {
+      $('#status').text(msg);
+      }
+      });
+  body
+    #wrapper
+      #container
+        h1 Intel(R) RealSense(TM) SDK Voice Recognition Web Sample
+        |             
+        #info
+        |             
+        br
+        |             Mode
+        |             
+        select#mode
+          option(value='0') Dictation
+          |                 
+          option(value='1') Command-control
+        |             
+        br
+        |             
+        textarea#commands(cols='40', rows='5', style='display:none')
+          | left
+          | right
+        |             
+        br
+        |             
+        button#Start Start
+        |             
+        button#Stop(disabled='disabled') Stop
+        |             
+        br
+        |             
+        br
+        b Status:
+        #status
+        |             
+        br
+        b Recognition result:
+        #recognition(style='height: 150px; border:1px solid #000000; overflow: scroll; overflow-x: hidden')
+        |             
+        br
+        b Alerts:
+        #alerts(style='height: 150px; border:1px solid #000000; overflow: scroll; overflow-x: hidden')
+
