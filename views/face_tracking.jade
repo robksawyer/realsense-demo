@@ -3,13 +3,13 @@ html
   head
     title Intel(R) RealSense(TM) SDK Web Sample
     |     
-    script(type='text/javascript', src='../public/javascripts/jquery-1.11.0.min.js')
+    script(type='text/javascript', src='/javascripts/jquery-1.11.0.min.js')
     |     
-    script(type='text/javascript', src='../public/javascripts/promise-1.0.0.min.js')
+    script(type='text/javascript', src='/javascripts/promise-1.0.0.min.js')
     |     
-    script(type='text/javascript', src='../public/javascripts/realsense-3.0.js')
+    script(type='text/javascript', src='/javascripts/realsense-3.0.js')
     |     
-    script(type='text/javascript', src='../public/javascripts/realsenseinfo-3.0.js')
+    script(type='text/javascript', src='/javascripts/realsenseinfo-3.0.js')
     |     
     script(type='text/javascript').
       $(document).ready(function () {
@@ -19,21 +19,21 @@ html
       // check platform compatibility
       RealSenseInfo(['face3d'], function (info) {
       if (info.IsReady == true) {
-      $('#info').append('<b>Platform supports Intel(R) RealSense(TM) SDK feature</b>');
-      status('OK');
-      document.getElementById("Start").disabled = false;
+          $('#info').append('<b>Platform supports Intel(R) RealSense(TM) SDK feature</b>');
+          status('OK');
+          document.getElementById("Start").disabled = false;
       } else {
-      status('Platform not supported: ' + info.responseText);
-      if (info.IsPlatformSupported != true) {
-      $('#info').append('<b>Intel® RealSense™ 3D camera not found</b>');
-      } else if (info.IsBrowserSupported != true) {
-      $('#info').append('<b>Please update your browser to latest version</b>');
-      } else {
-      $('#info').append('<b>Please download and install the following update(s) before running sample: </b>');
-      for (i = 0; i < info.Updates.length; i++) {
-      $('#info').append('<a href="' + info.Updates[i].url + '">' + info.Updates[i].href + '</a><br>');
-      }
-      }
+          status('Platform not supported: ' + info.responseText);
+          if (info.IsPlatformSupported != true) {
+            $('#info').append('<b>Intel® RealSense™ 3D camera not found</b>');
+          } else if (info.IsBrowserSupported != true) {
+            $('#info').append('<b>Please update your browser to latest version</b>');
+          } else {
+            $('#info').append('<b>Please download and install the following update(s) before running sample: </b>');
+              for (i = 0; i < info.Updates.length; i++) {
+                $('#info').append('<a href="' + info.Updates[i].url + '">' + info.Updates[i].href + '</a><br>');
+              }
+          }
       }
       })
       $('#Start').click(function () {
