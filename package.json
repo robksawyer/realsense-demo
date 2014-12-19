@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "DEBUG=realsense-demo ./bin/www"
   },
   "dependencies": {
     "audiosynth": "0.0.5",
