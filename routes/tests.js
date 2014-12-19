@@ -6,7 +6,7 @@ router.get('/', function(req, res) {
   res.send('respond with a resource');
 });
 
-router.get('/test', function (req, res) {
+router.get('/demo', function (req, res) {
     res.render('face_tracking');
 });
 
